@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo · simple list</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #f8faff 0%, #eef2f9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .app-card {
+            max-width: 650px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 40px -12px rgba(0, 20, 40, 0.25), 
+                        0 1px 2px rgba(0,0,0,0.03);
+            padding: 2rem 2rem 2rem 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.2s;
+        }
+
+        h1 {
+            font-size: 2.1rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            margin-bottom: 1.75rem;
+            color: #0f172a;
+        }
+
+        h1 span {
+            background: #3b82f6;
+            color: white;
+            font-size: 1.4rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1rem;
+            box-shadow: 0 8px 16px -6px #3b82f680;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            border: 1px solid #d9e2ef;
+            border-radius: 2rem;
+            background: #ffffffcc;
+            backdrop-filter: blur(4px);
+            outline: none;
+            transition: 0.2s;
+            color: #0f172a;
+            font-weight: 450;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+        }
+
+        .input-area input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px #3b82f620, inset 0 1px 3px #00000008;
+            background: #ffffff;
+        }
+
+        .input-area input::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .input-area button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0 1.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            transition: 0.15s;
+            box-shadow: 0 10px 18px -10px #1e3a8a80;
+            border: 1px solid #ffffff30;
+            letter-spacing: 0.01em;
+        }
+
+        .input-area button:hover {
+            background: #2563eb;
+            transform: scale(1.02);
+            box-shadow: 0 14px 20px -10px #1e3a8a99;
+        }
+
+        .input-area button:active {
+            transform: scale(0.98);
+            background: #1d4ed8;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding: 0 0.25rem;
+            font-size: 0.9rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .task-count {
+            background: #e9eef6;
+            padding: 0.3rem 0.9rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1e293b;
+            letter-spacing: 0.01em;
+        }
+
+        .clear-btn {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .clear-btn:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .todo-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 0.2rem;
+            margin-bottom: 0.25rem;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+
+        .todo-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .todo-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .todo-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            background: #ffffffd9;
+            backdrop-filter: blur(2px);
+            padding: 0.9rem 1.2rem;
+            border-radius: 2rem;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 10px -6px #00000008;
+            transition: 0.15s;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .todo-item:hover {
+            border-color: #cbd5e1;
+            background: #ffffff;
+            box-shadow: 0 6px 14px -8px #1e293b1a;
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: #94a3b8;
+            opacity: 0.7;
+        }
+
+        .todo-check {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.6rem;
+            height: 1.6rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.1s;
+            background: white;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .todo-check:checked {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .todo-check:checked::after {
+            content: "✓";
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1;
+            display: block;
+            margin-top: -1px;
+        }
+
+        .todo-check:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .todo-check:checked:hover {
+            background: #2563eb;
+        }
+
+        .todo-text {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 450;
+            word-break: break-word;
+            transition: 0.1s;
+            color: #0f172a;
+            line-height: 1.4;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            border-radius: 2rem;
+            line-height: 1;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+        }
+
+        .delete-btn:hover {
+            background: #fee2e2;
+            color: #dc2626;
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: #94a3b8;
+            font-weight: 450;
+            background: #f8fafc80;
+            border-radius: 2rem;
+            border: 1px dashed #d9e2ef;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .empty-state span {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #a0aec0;
+            letter-spacing: 0.02em;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-card">
+        <h1>
+            <span>✓</span> 
+            todo.
+        </h1>
+
+        <!-- input row -->
+        <div class="input-area">
+            <input type="text" id="todoInput" placeholder="Add a new task..." autocomplete="off" maxlength="120">
+            <button id="addBtn" aria-label="Add task">+ Add</button>
+        </div>
+
+        <!-- stats & clear -->
+        <div class="stats">
+            <div class="task-count" id="taskCount">0 tasks</div>
+            <button class="clear-btn" id="clearCompletedBtn" title="Clear completed tasks">
+                🧹 Clear completed
+            </button>
+        </div>
+
+        <!-- todo list container -->
+        <ul class="todo-list" id="todoList"></ul>
+
+        <!-- optional empty state placeholder (injected by js) -->
+        <footer>click ✓ to complete · refresh to reset</footer>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- data ----------
+            // Load from localStorage or start with a couple of friendly tasks
+            let todos = [];
+
+            // Try loading from localStorage
+            const STORAGE_KEY = 'todo_app_tasks_v1';
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    todos = JSON.parse(stored);
+                } else {
+                    // default sample tasks (only if no storage)
+                    todos = [
+                        { id: '1', text: 'Try the todo app', completed: false },
+                        { id: '2', text: 'Click ✓ to mark done', completed: false },
+                        { id: '3', text: 'Add your own tasks', completed: false }
+                    ];
+                }
+            } catch (e) {
+                console.warn('Failed to load todos, using defaults');
+                todos = [
+                    { id: '1', text: 'Try the todo app', completed: false },
+                    { id: '2', text: 'Click ✓ to mark done', completed: false },
+                    { id: '3', text: 'Add your own tasks', completed: false }
+                ];
+            }
+
+            // ensure every todo has a unique id (if stored data lacks id)
+            todos = todos.map((t, index) => {
+                if (!t.id) t.id = Date.now() + '-' + index + '-' + Math.random().toString(36).substr(2, 6);
+                return t;
+            });
+
+            // ---------- DOM elements ----------
+            const todoInput = document.getElementById('todoInput');
+            const addBtn = document.getElementById('addBtn');
+            const todoList = document.getElementById('todoList');
+            const taskCount = document.getElementById('taskCount');
+            const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+
+            // ---------- helper: save to localStorage ----------
+            function saveTodos() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+                } catch (e) {
+                    console.warn('Could not save to localStorage', e);
+                }
+            }
+
+            // ---------- render everything ----------
+            function render() {
+                // 1. update task counter
+                const total = todos.length;
+                const completed = todos.filter(t => t.completed).length;
+                const remaining = total - completed;
+                if (total === 0) {
+                    taskCount.textContent = '0 tasks';
+                } else {
+                    taskCount.textContent = `${remaining} of ${total} task${total !== 1 ? 's' : ''}`;
+                }
+
+                // 2. clear list
+                todoList.innerHTML = '';
+
+                // 3. if no todos, show empty state
+                if (todos.length === 0) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty-state';
+                    emptyDiv.innerHTML = `
+                        <span>📋</span>
+                        <div>Your todo list is empty</div>
+                        <div style="font-size: 0.85rem; opacity:0.8;">Add a task above ✨</div>
+                    `;
+                    todoList.appendChild(emptyDiv);
+                    return;
+                }
+
+                // 4. render each todo
+                todos.forEach(todo => {
+                    const li = document.createElement('li');
+                    li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                    li.dataset.id = todo.id;
+
+                    // checkbox
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'todo-check';
+                    checkbox.checked = todo.completed;
+                    checkbox.setAttribute('aria-label', `Mark "${todo.text}" as ${todo.completed ? 'incomplete' : 'complete'}`);
+                    
+                    // listen for toggle
+                    checkbox.addEventListener('change', (e) => {
+                        e.stopPropagation();
+                        toggleTodo(todo.id);
+                    });
+
+                    // task text
+                    const span = document.createElement('span');
+                    span.className = 'todo-text';
+                    span.textContent = todo.text;
+
+                    // delete button
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'delete-btn';
+                    delBtn.innerHTML = '✕';
+                    delBtn.setAttribute('aria-label', `Delete task: ${todo.text}`);
+                    delBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteTodo(todo.id);
+                    });
+
+                    li.appendChild(checkbox);
+                    li.appendChild(span);
+                    li.appendChild(delBtn);
+                    todoList.appendChild(li);
+                });
+            }
+
+            // ---------- core actions ----------
+            function addTodo() {
+                const rawText = todoInput.value.trim();
+                if (rawText === '') {
+                    // subtle feedback: shake input? (optional)
+                    todoInput.style.borderColor = '#f87171';
+                    todoInput.style.boxShadow = '0 0 0 4px #f8717120';
+                    setTimeout(() => {
+                        todoInput.style.borderColor = '#d9e2ef';
+                        todoInput.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.01)';
+                    }, 250);
+                    return;
+                }
+
+                // create new todo object
+                const newTodo = {
+                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                    text: rawText,
+                    completed: false
+                };
+
+                todos.push(newTodo);
+                saveTodos();
+                render();
+
+                // clear input and focus
+                todoInput.value = '';
+                todoInput.focus();
+            }
+
+            function toggleTodo(id) {
+                const todo = todos.find(t => t.id === id);
+                if (todo) {
+                    todo.completed = !todo.completed;
+                    saveTodos();
+                    render();
+                }
+            }
+
+            function deleteTodo(id) {
+                todos = todos.filter(t => t.id !== id);
+                saveTodos();
+                render();
+            }
+
+            function clearCompleted() {
+                const hadCompleted = todos.some(t => t.completed);
+                if (!hadCompleted) {
+                    // small feedback: maybe pulse button? (not necessary)
+                    clearCompletedBtn.style.transform = 'scale(0.96)';
+                    setTimeout(() => clearCompletedBtn.style.transform = '', 120);
+                    return;
+                }
+                todos = todos.filter(t => !t.completed);
+                saveTodos();
+                render();
+            }
+
+            // ---------- event listeners ----------
+            addBtn.addEventListener('click', addTodo);
+
+            todoInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTodo();
+                }
+            });
+
+            clearCompletedBtn.addEventListener('click', clearCompleted);
+
+            // ---------- initial render ----------
+            render();
+
+            // optional: focus input on load
+            todoInput.focus();
+
+            // extra: if localStorage has old data, render again just in case
+            // (already done above, but keep in sync)
+        })();
+    </script>
+</body>
+</html>
